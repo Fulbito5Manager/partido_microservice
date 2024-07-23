@@ -1,8 +1,11 @@
 package com.api.partido.controller;
 
 import com.api.partido.dto.PartidoUpdateRequestDto;
-import com.api.partido.service.PartidoService;
+import com.api.partido.service.PartidoServiceImpl;
 import com.api.partido.domain.Partido;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,54 +15,73 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/partidos")
+@Tag(name = "Partido Management System", description = "Operations pertaining to team in Partido Management System")
 public class PartidoController {
 
     @Autowired
-    private PartidoService partidoService;
+    private PartidoServiceImpl partidoService;
 
+    @Operation(summary = "Devuelve una lista de Partidos con todos los Partidos")
     @GetMapping
-    public List<Partido> getAllPartidos(){
+    public List<Partido> getAllPartidos() {
 
         return partidoService.getAllPartidos();
     }
 
+    @Operation(summary = "Devuelve un Partido con un id de partido particular")
     @GetMapping("/{id}")
-    public ResponseEntity<Partido> getPartidoById(@PathVariable Long id){
+    public ResponseEntity<Partido> getPartidoById(
+            @Parameter(description = "ID del partido a devolver", required = true)
+            @PathVariable Long id) {
         Optional<Partido> partido = partidoService.getPartidoById(id);
         return partido.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
 
     }
 
+    @Operation(summary = "Crea un nuevo Partido")
     @PostMapping
-    public Partido createPartido(@RequestBody Partido partido){
+    public Partido createPartido(
+            @Parameter(description = "Objeto partido a crear", required = true)
+            @RequestBody Partido partido) {
 
         return partidoService.savePartido(partido);
     }
+
+    @Operation(summary = "Devuelve un Partido con un atributo actualizado")
     @PatchMapping("/{id}")
-    public  ResponseEntity<Partido> parchearPartido(@PathVariable Long id,@RequestBody PartidoUpdateRequestDto partidoUpdateRequestDto){
+    public ResponseEntity<Partido> actualizarPartidoById(
+            @Parameter(description = "ID del partido a parchear", required = true)
+            @PathVariable Long id,
+            @Parameter(description = "Objeto Request para parchear un partido", required = true)
+            @RequestBody PartidoUpdateRequestDto partidoUpdateRequestDto) {
         Optional<Partido> partido = partidoService.getPartidoById(id);
-        if(partido.isPresent()){
+        if (partido.isPresent()) {
             Partido partidoEncontrado = partido.get();
-            if(partidoUpdateRequestDto.getCanchaId() != null){
+            if (partidoUpdateRequestDto.getCanchaId() != null) {
                 partidoEncontrado.setCanchaId(partidoUpdateRequestDto.getCanchaId());
             }
-            if(partidoUpdateRequestDto.getDate() != null){
+            if (partidoUpdateRequestDto.getDate() != null) {
                 partidoEncontrado.setDate(partidoUpdateRequestDto.getDate());
             }
-            if(partidoUpdateRequestDto.getEstado() != null){
+            if (partidoUpdateRequestDto.getEstado() != null) {
                 partidoEncontrado.setEstado(partidoUpdateRequestDto.getEstado());
             }
             Partido updatedPartido = partidoService.savePartido(partidoEncontrado);
             return ResponseEntity.ok(updatedPartido);
         } else {
-           return ResponseEntity.notFound().build();
+            return ResponseEntity.notFound().build();
         }
     }
 
+    @Operation(summary = "Devuelve un Partido con todos atributos actualizados")
     @PutMapping("/{id}")
-    public ResponseEntity<Partido> updatePartido(@PathVariable Long id, @RequestBody Partido partidoDetails){
+    public ResponseEntity<Partido> updatePartido(
+            @Parameter(description = "ID del partido a actualizar", required = true)
+            @PathVariable Long id,
+            @Parameter(description = "Objeto de partido actualizado", required = true)
+            @RequestBody Partido partidoDetails) {
         Optional<Partido> partido = partidoService.getPartidoById(id);
-        if(partido.isPresent()){
+        if (partido.isPresent()) {
             Partido existingPartido = partido.get();
             existingPartido.setDate(partidoDetails.getDate());
             existingPartido.setCanchaId(partidoDetails.getCanchaId());
@@ -71,14 +93,17 @@ public class PartidoController {
         }
     }
 
+    @Operation(summary = "Borra un partido con un id en particular")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePartido(@PathVariable Long id){
+    public ResponseEntity<Void> deletePartido(
+            @Parameter(description = "ID del partido a borrar", required = true)
+            @PathVariable Long id) {
         Optional<Partido> partido = partidoService.getPartidoById(id);
-        if(partido.isPresent()){
+        if (partido.isPresent()) {
             partidoService.deletePartido(id);
             return ResponseEntity.noContent().build();
         } else {
-            return  ResponseEntity.notFound().build();
+            return ResponseEntity.notFound().build();
         }
     }
 }

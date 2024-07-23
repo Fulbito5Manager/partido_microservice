@@ -18,9 +18,18 @@ public class Partido {
 
     @Column(nullable = false)
     private Long canchaId;
-
     @Column(nullable = false)
     private String estado;
+    @Column(nullable = false)
+    private Long equipoGanadorId;
+
+    public Long getEquipoGanadorId() {
+        return equipoGanadorId;
+    }
+
+    public void setEquipoGanadorId(Long equipoGanadorId) {
+        this.equipoGanadorId = equipoGanadorId;
+    }
 
     public Partido() {
     }
