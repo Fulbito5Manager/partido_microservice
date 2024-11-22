@@ -3,6 +3,9 @@ package com.api.partido.controller;
 import com.api.partido.dto.PartidoUpdateRequestDto;
 import com.api.partido.service.PartidoServiceImpl;
 import com.api.partido.domain.Partido;
+import com.f5app.eventpublisher.domain.EventType;
+import com.f5app.eventpublisher.domain.Topic;
+import com.f5app.eventpublisher.aspect.eventproducer.annotation.EventProducer;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -54,23 +57,14 @@ public class PartidoController {
             @PathVariable Long id,
             @Parameter(description = "Objeto Request para parchear un partido", required = true)
             @RequestBody PartidoUpdateRequestDto partidoUpdateRequestDto) {
-        Optional<Partido> partido = partidoService.getPartidoById(id);
-        if (partido.isPresent()) {
-            Partido partidoEncontrado = partido.get();
-            if (partidoUpdateRequestDto.getCanchaId() != null) {
-                partidoEncontrado.setCanchaId(partidoUpdateRequestDto.getCanchaId());
-            }
-            if (partidoUpdateRequestDto.getDate() != null) {
-                partidoEncontrado.setDate(partidoUpdateRequestDto.getDate());
-            }
-            if (partidoUpdateRequestDto.getEstado() != null) {
-                partidoEncontrado.setEstado(partidoUpdateRequestDto.getEstado());
-            }
-            Partido updatedPartido = partidoService.savePartido(partidoEncontrado);
-            return ResponseEntity.ok(updatedPartido);
-        } else {
+
+        Partido partidoUpdated = partidoService.updatePartido(id,partidoUpdateRequestDto);
+
+        if(partidoUpdated != null)
+            return ResponseEntity.ok(partidoUpdated);
+        else
             return ResponseEntity.notFound().build();
-        }
+
     }
 
     @Operation(summary = "Devuelve un Partido con todos atributos actualizados")

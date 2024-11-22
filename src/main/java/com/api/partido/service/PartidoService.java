@@ -11,4 +11,5 @@ public interface PartidoService {
     Optional<Partido> getPartidoById(Long id);
     Partido savePartido(Partido partido);
     void deletePartido(Long id);
+    Partido updatePartido(Long partidoId, PartidoUpdateRequestDto partidoUpdateRequestDto);
 }
