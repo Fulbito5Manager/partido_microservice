@@ -76,33 +76,123 @@ public class PartidoServiceImplTest {
     }
 
     @Test
-    public void testUpdatePartido() {
-        LocalDateTime fooPartidoDate = LocalDateTime.now();
-        LocalDateTime secondFooPartidoDate = LocalDateTime.now();
-
+    void updatePartido_canchaIdProvided_updatesCanchaId() {
         // Arrange
         Long partidoId = 1L;
         PartidoUpdateRequestDto updateRequestDto = new PartidoUpdateRequestDto();
         updateRequestDto.setCanchaId(2L);
-        updateRequestDto.setDate(fooPartidoDate);
-        updateRequestDto.setEstado("FINALIZADO");
+        updateRequestDto.setDate(null);
+        updateRequestDto.setEstado(null);
 
         Partido existingPartido = new Partido();
         existingPartido.setId(partidoId);
         existingPartido.setCanchaId(1L);
-        existingPartido.setDate(secondFooPartidoDate);
+        existingPartido.setDate(LocalDateTime.of(2024, 11, 22, 15, 30));
         existingPartido.setEstado("PENDIENTE");
 
         when(partidoRepositoryMock.findById(partidoId)).thenReturn(Optional.of(existingPartido));
-        when(partidoRepositoryMock.save(Mockito.any(Partido.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(partidoRepositoryMock.save(any(Partido.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // Act
         Partido updatedPartido = underTest.updatePartido(partidoId, updateRequestDto);
 
         // Assert
         assertEquals(2L, updatedPartido.getCanchaId());
-        assertEquals(fooPartidoDate, updatedPartido.getDate());
+        assertEquals(LocalDateTime.of(2024, 11, 22, 15, 30), updatedPartido.getDate());
+        assertEquals("PENDIENTE", updatedPartido.getEstado());
+
+        // Verify
+        verify(partidoRepositoryMock, times(1)).findById(partidoId);
+        verify(partidoRepositoryMock, times(1)).save(existingPartido);
+    }
+
+    @Test
+    void updatePartido_dateProvided_updatesDate() {
+        // Arrange
+        Long partidoId = 1L;
+        PartidoUpdateRequestDto updateRequestDto = new PartidoUpdateRequestDto();
+        updateRequestDto.setCanchaId(null);
+        updateRequestDto.setDate(LocalDateTime.of(2024, 12, 1, 18, 0));
+        updateRequestDto.setEstado(null);
+
+        Partido existingPartido = new Partido();
+        existingPartido.setId(partidoId);
+        existingPartido.setCanchaId(1L);
+        existingPartido.setDate(LocalDateTime.of(2024, 11, 22, 15, 30));
+        existingPartido.setEstado("PENDIENTE");
+
+        when(partidoRepositoryMock.findById(partidoId)).thenReturn(Optional.of(existingPartido));
+        when(partidoRepositoryMock.save(any(Partido.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // Act
+        Partido updatedPartido = underTest.updatePartido(partidoId, updateRequestDto);
+
+        // Assert
+        assertEquals(1L, updatedPartido.getCanchaId());
+        assertEquals(LocalDateTime.of(2024, 12, 1, 18, 0), updatedPartido.getDate());
+        assertEquals("PENDIENTE", updatedPartido.getEstado());
+
+        // Verify
+        verify(partidoRepositoryMock, times(1)).findById(partidoId);
+        verify(partidoRepositoryMock, times(1)).save(existingPartido);
+    }
+
+    @Test
+    void updatePartido_estadoProvided_updatesEstado() {
+        // Arrange
+        Long partidoId = 1L;
+        PartidoUpdateRequestDto updateRequestDto = new PartidoUpdateRequestDto();
+        updateRequestDto.setCanchaId(null);
+        updateRequestDto.setDate(null);
+        updateRequestDto.setEstado("FINALIZADO");
+
+        Partido existingPartido = new Partido();
+        existingPartido.setId(partidoId);
+        existingPartido.setCanchaId(1L);
+        existingPartido.setDate(LocalDateTime.of(2024, 11, 22, 15, 30));
+        existingPartido.setEstado("PENDIENTE");
+
+        when(partidoRepositoryMock.findById(partidoId)).thenReturn(Optional.of(existingPartido));
+        when(partidoRepositoryMock.save(any(Partido.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // Act
+        Partido updatedPartido = underTest.updatePartido(partidoId, updateRequestDto);
+
+        // Assert
+        assertEquals(1L, updatedPartido.getCanchaId());
+        assertEquals(LocalDateTime.of(2024, 11, 22, 15, 30), updatedPartido.getDate());
         assertEquals("FINALIZADO", updatedPartido.getEstado());
+
+        // Verify
+        verify(partidoRepositoryMock, times(1)).findById(partidoId);
+        verify(partidoRepositoryMock, times(1)).save(existingPartido);
+    }
+
+    @Test
+    void updatePartido_noFieldsProvided_noChanges() {
+        // Arrange
+        Long partidoId = 1L;
+        PartidoUpdateRequestDto updateRequestDto = new PartidoUpdateRequestDto();
+        updateRequestDto.setCanchaId(null);
+        updateRequestDto.setDate(null);
+        updateRequestDto.setEstado(null);
+
+        Partido existingPartido = new Partido();
+        existingPartido.setId(partidoId);
+        existingPartido.setCanchaId(1L);
+        existingPartido.setDate(LocalDateTime.of(2024, 11, 22, 15, 30));
+        existingPartido.setEstado("PENDIENTE");
+
+        when(partidoRepositoryMock.findById(partidoId)).thenReturn(Optional.of(existingPartido));
+        when(partidoRepositoryMock.save(any(Partido.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // Act
+        Partido updatedPartido = underTest.updatePartido(partidoId, updateRequestDto);
+
+        // Assert
+        assertEquals(1L, updatedPartido.getCanchaId());
+        assertEquals(LocalDateTime.of(2024, 11, 22, 15, 30), updatedPartido.getDate());
+        assertEquals("PENDIENTE", updatedPartido.getEstado());
 
         // Verify
         verify(partidoRepositoryMock, times(1)).findById(partidoId);
